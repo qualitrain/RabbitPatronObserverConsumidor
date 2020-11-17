@@ -10,16 +10,13 @@ public class TestConsumo {
 			System.out.println("Consumidor " + args[0]);
 		
 		ConsumidorMensajes consumidor = new ConsumidorMensajes();
-		consumidor.suscribirseA("nuevoCliente");
+		consumidor.suscribirseA("exClientesNuevos", "colaCosumidor01");
 		
 		ConsumidorMensajes consumidor2 = new ConsumidorMensajesAlt();
-		consumidor2.suscribirseA("nuevoCliente");
+		consumidor2.suscribirseA("exClientesNuevos", "colaCosumidor02");
 		
 		consumidor.consumirMensajes();
-		consumidor2.consumirMensajes();
-		
-		
-		
+		consumidor2.consumirMensajes();						
 	}
 
 }

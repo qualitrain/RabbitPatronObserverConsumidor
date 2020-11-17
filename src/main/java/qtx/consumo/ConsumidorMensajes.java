@@ -35,8 +35,8 @@ public class ConsumidorMensajes {
 			this.conectado = true;
 			this.canal.exchangeDeclare(this.nombreIntermediario, "fanout");
 	        this.nombreCola = canal.queueDeclare()
-	        		                     .getQueue(); //Cola an�nima
-	        // queueBind​(String queue, String exchange, String routingKey)
+	        		                     .getQueue(); //Cola anónima
+	        // queueBind(String queue, String exchange, String routingKey)
 	        canal.queueBind(this.nombreCola, this.nombreIntermediario, "");		
 	    } 
 		catch (IOException | TimeoutException e) {
@@ -44,18 +44,39 @@ public class ConsumidorMensajes {
 		}
 		finally {
 			
+		}		
+	}
+	public void suscribirseA(String nomIntermediario, String nombreCola) {
+		this.nombreIntermediario = nomIntermediario;
+		ConnectionFactory fabricaConexiones = new ConnectionFactory();
+		fabricaConexiones.setHost(this.hostRabbitMQ);
+	    this.nombreCola = nombreCola;
+		try {
+			this.conexion = fabricaConexiones.newConnection();
+			this.canal = conexion.createChannel();
+			this.conectado = true;
+			this.canal.exchangeDeclare(this.nombreIntermediario, "fanout");
+			
+			this.canal.queueDeclare(this.nombreCola, false, true, true, null);
+			//	queueDeclare​(String queue, boolean durable -memoria o disco-, boolean exclusive -para uso de esta conexión exclusivamente-, boolean autoDelete -borrar al cancelar ult consumidor-, Map<String,​Object> arguments) 
+			
+	        this.nombreCola = canal.queueDeclare()
+	        		                     .getQueue(); //Cola anónima
+	        // queueBind(String queue, String exchange, String routingKey)
+	        canal.queueBind(this.nombreCola, this.nombreIntermediario, "");		
+	    } 
+		catch (IOException | TimeoutException e) {
+			e.printStackTrace();
 		}
-		
+		finally {
+			
+		}		
 	}
 	public void consumirMensajes() {
-		if(this.conectado == false) {
-			System.out.println("Error: Conexión cerrada");
-			return;
-		}
 		DeliverCallback procesadorMensajes = getProcesadorMensajes();
 		CancelCallback procesadorCancelacion = getProcesadorCancelacion();
 		try {
-			// basicConsume​(String queue, boolean autoAck, Map<String,​Object> arguments, Consumer callback)
+			// basicConsume(String queue, boolean autoAck, Map<String,‹Object> arguments, Consumer callback)
 			this.idConsumidor = canal.basicConsume(this.nombreCola, true, procesadorMensajes, procesadorCancelacion );
 			System.out.println("Consumer Tag:[" + this.idConsumidor + "]");
 		} 
@@ -82,7 +103,7 @@ public class ConsumidorMensajes {
 		return callback;
 	}
 	protected void procesarMensaje(String contenido) {
-		System.out.println("Procesando mensaje:[" + contenido + "]");
+		System.out.println("+++ Registrando nuevo cliente:[" + contenido + "] +++");
 		try {
 			Thread.sleep(1000 * ((contenido.length() % 5) + 1) );
 		} catch (InterruptedException e) {
@@ -91,6 +112,13 @@ public class ConsumidorMensajes {
 	}
 	private CancelCallback getProcesadorCancelacion() {
 		return consumerTag-> {
+	        System.out.println("Se ha cancelado este consumidor " + consumerTag);
+	        try {
+	              canal.close();
+	              conexion.close();
+	        } catch (TimeoutException e) {
+	              e.printStackTrace();
+	        } 
 		};
 	} 
 }
