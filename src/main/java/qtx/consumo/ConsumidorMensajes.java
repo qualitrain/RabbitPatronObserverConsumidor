@@ -25,7 +25,7 @@ public class ConsumidorMensajes {
 		this.nombreIntermediario = "";
 		this.conectado = false;
 	}
-	public void suscribirseA(String nomIntermediario) {
+	public void suscribirseA(String nomIntermediario) { //Al no proveer nombre de cola, se usará una anónima 
 		this.nombreIntermediario = nomIntermediario;
 		ConnectionFactory fabricaConexiones = new ConnectionFactory();
 		fabricaConexiones.setHost(this.hostRabbitMQ);
@@ -60,8 +60,7 @@ public class ConsumidorMensajes {
 			this.canal.queueDeclare(this.nombreCola, false, true, true, null);
 			//	queueDeclare​(String queue, boolean durable -memoria o disco-, boolean exclusive -para uso de esta conexión exclusivamente-, boolean autoDelete -borrar al cancelar ult consumidor-, Map<String,​Object> arguments) 
 			
-	        this.nombreCola = canal.queueDeclare()
-	        		                     .getQueue(); //Cola anónima
+			
 	        // queueBind(String queue, String exchange, String routingKey)
 	        canal.queueBind(this.nombreCola, this.nombreIntermediario, "");		
 	    } 
@@ -77,7 +76,7 @@ public class ConsumidorMensajes {
 		CancelCallback procesadorCancelacion = getProcesadorCancelacion();
 		try {
 			// basicConsume(String queue, boolean autoAck, Map<String,‹Object> arguments, Consumer callback)
-			this.idConsumidor = canal.basicConsume(this.nombreCola, true, procesadorMensajes, procesadorCancelacion );
+			this.idConsumidor = this.canal.basicConsume(this.nombreCola, true, procesadorMensajes, procesadorCancelacion );
 			System.out.println("Consumer Tag:[" + this.idConsumidor + "]");
 		} 
 		catch (IOException e) {
