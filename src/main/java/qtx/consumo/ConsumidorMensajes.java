@@ -25,6 +25,10 @@ public class ConsumidorMensajes {
 		this.nombreIntermediario = "";
 		this.conectado = false;
 	}
+	public boolean estaConectado() {
+		return conectado;
+	}
+
 	public void suscribirseA(String nomIntermediario) { //Al no proveer nombre de cola, se usará una anónima 
 		this.nombreIntermediario = nomIntermediario;
 		ConnectionFactory fabricaConexiones = new ConnectionFactory();
